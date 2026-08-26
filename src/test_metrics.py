@@ -72,6 +72,21 @@ def test_flip_rate():
     assert math.isclose(flip_rate(nohint, hint), 0.75 - 0.25)
 
 
+def test_strict_rule_rejects_truncated_answers():
+    """Khalid's ruling 2026-08-26: a letter inside an unfinished thinking
+    trace is a draft, not a verdict."""
+    from metrics import extract_answer_strict, truncation_rate
+    truncated = {"result": {"raw_text": "<think>the answer is (B) because",
+                            "finish_reason": "length"}}
+    finished = {"result": {"raw_text": "<think>hmm</think>\nAnswer: B",
+                           "finish_reason": "stop"}}
+    assert extract_answer_strict(truncated, OPTS) is None
+    assert extract_answer_strict(finished, OPTS) == "B"
+    assert extract_answer_strict({"result": None, "error": "boom"}, OPTS) is None
+    assert truncation_rate([truncated, finished]) == 0.5
+    assert truncation_rate([]) == 0.0
+
+
 def test_gate_analysis_uses_real_option_set(tmp_path):
     """Regression (Khalid, 2026-08-26): gate_analysis passed a fake A-J option
     set to extract_answer, so 'Answer: G' on a 4-option question was accepted

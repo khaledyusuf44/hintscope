@@ -50,6 +50,28 @@ def extract_answer(raw_text: str, options: dict) -> str | None:
     return None
 
 
+def extract_answer_strict(record: dict, options: dict) -> str | None:
+    """STRICT answer rule (Khalid, 2026-08-26): a completion only counts as
+    answering if it finished naturally (finish_reason == 'stop'). A truncated
+    thinking trace is a draft, not a verdict — any letter found inside it does
+    NOT count. Truncations are reported separately via truncation_rate."""
+    result = record.get("result") or {}
+    if result.get("finish_reason") != "stop":
+        return None
+    return extract_answer(result.get("raw_text"), options)
+
+
+def truncation_rate(records: list[dict]) -> float:
+    """Fraction of records whose completion hit the token cap
+    (finish_reason == 'length'). First-class reported number; also a free
+    per-question difficulty signal (long thinking = hard question)."""
+    if not records:
+        return 0.0
+    n = sum(1 for r in records
+            if (r.get("result") or {}).get("finish_reason") == "length")
+    return n / len(records)
+
+
 def modal_answer(records: list[dict]) -> tuple[str | None, int, int]:
     """(modal extracted answer, its count, n parsed) across a record list.
     Records with unparseable answers are excluded from the mode but counted

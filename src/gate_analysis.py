@@ -17,7 +17,8 @@ import random
 from collections import defaultdict
 from pathlib import Path
 
-from metrics import extract_answer, flip_rate, modal_answer, parse_failure_rate
+from metrics import (extract_answer_strict, flip_rate, modal_answer,
+                     parse_failure_rate, truncation_rate)
 
 
 def load_results(path: Path, options_by_qid: dict[str, dict]) -> dict[str, list[dict]]:
@@ -36,11 +37,11 @@ def load_results(path: Path, options_by_qid: dict[str, dict]) -> dict[str, list[
     by_q = defaultdict(list)
     n_err = 0
     for rec in by_key.values():
-        raw = (rec.get("result") or {}).get("raw_text")
         if rec.get("error"):
             n_err += 1
         opts = options_by_qid[rec["question_id"]]
-        rec["_extracted"] = extract_answer(raw, opts) if raw else None
+        # STRICT rule: truncated completions never yield an answer
+        rec["_extracted"] = extract_answer_strict(rec, opts)
         by_q[rec["question_id"]].append(rec)
     if n_err:
         print(f"!! {n_err} samples in {path.name} have API errors after retries — "
@@ -67,8 +68,10 @@ def main():
     all_no = [r for recs in nohint.values() for r in recs]
     all_hi = [r for recs in hint.values() for r in recs]
     print(f"\n=== GATE NUMBERS (no_hint N={len(all_no)}, hint N={len(all_hi)}) ===")
+    print(f"truncation rate     no_hint: {truncation_rate(all_no):.3f}   "
+          f"hint: {truncation_rate(all_hi):.3f}")
     print(f"parse-failure rate  no_hint: {parse_failure_rate(all_no):.3f}   "
-          f"hint: {parse_failure_rate(all_hi):.3f}")
+          f"hint: {parse_failure_rate(all_hi):.3f}  (strict rule: includes truncations)")
 
     rows = []
     for qid, recs in sorted(nohint.items()):
