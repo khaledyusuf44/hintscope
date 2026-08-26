@@ -78,7 +78,9 @@ def main():
         truth = recs[0]["ground_truth"]
         parsed = [r for r in recs if r["_extracted"]]
         acc = sum(1 for r in parsed if r["_extracted"] == truth) / len(parsed) if parsed else 0.0
-        qualifies = acc >= args.min_nohint_acc
+        # Khalid's bar (2026-08-26): EVERY sample must parse cleanly under the
+        # strict rule AND >=80% must be correct; any failure -> held, not arm'd
+        qualifies = len(parsed) == len(recs) and acc >= args.min_nohint_acc
         row = {"qid": qid, "truth": truth, "nohint_acc": acc, "n_parsed": len(parsed),
                "qualifies": qualifies}
         if qualifies and qid in hint:
