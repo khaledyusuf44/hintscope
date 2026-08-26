@@ -87,6 +87,13 @@ def test_strict_rule_rejects_truncated_answers():
     assert truncation_rate([]) == 0.0
 
 
+def test_thinking_chars():
+    from metrics import thinking_chars
+    assert thinking_chars({"result": {"raw_text": "abcde</think>Answer: A"}}) == 5
+    assert thinking_chars({"result": {"raw_text": "truncated draft"}}) == 15
+    assert thinking_chars({"result": None}) is None
+
+
 def test_gate_analysis_uses_real_option_set(tmp_path):
     """Regression (Khalid, 2026-08-26): gate_analysis passed a fake A-J option
     set to extract_answer, so 'Answer: G' on a 4-option question was accepted

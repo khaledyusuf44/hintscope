@@ -72,6 +72,21 @@ def truncation_rate(records: list[dict]) -> float:
     return n / len(records)
 
 
+def thinking_chars(record: dict) -> int | None:
+    """Per-sample thinking length in characters: length of the text before the
+    last </think> tag (the whole output if the tag never appeared, e.g. a
+    truncated trace; None if there is no output at all). First-class number,
+    logged for every sample in both conditions (Khalid's ruling 2026-08-26).
+    Exact token counts additionally exist as result.completion_tokens on
+    records written after that ruling."""
+    raw = (record.get("result") or {}).get("raw_text")
+    if raw is None:
+        return None
+    if "</think>" in raw:
+        return len(raw.rsplit("</think>", 1)[0])
+    return len(raw)
+
+
 def modal_answer(records: list[dict]) -> tuple[str | None, int, int]:
     """(modal extracted answer, its count, n parsed) across a record list.
     Records with unparseable answers are excluded from the mode but counted

@@ -190,12 +190,18 @@ async def run_one(client, model, messages, temperature, max_tokens, seed):
         seed=seed,
     )
     msg = resp.choices[0].message
+    usage = resp.usage
     return {
         "raw_text": msg.content,
         # populated only if the server runs a reasoning parser; we serve raw
         "reasoning_content": getattr(msg, "reasoning_content", None),
         "finish_reason": resp.choices[0].finish_reason,
         "latency_s": round(time.time() - t0, 2),
+        # thinking length is a first-class number (Khalid's ruling): exact
+        # completion token count from the server; char-level split lives in
+        # metrics.thinking_chars for records predating this field
+        "completion_tokens": getattr(usage, "completion_tokens", None),
+        "prompt_tokens": getattr(usage, "prompt_tokens", None),
     }
 
 
