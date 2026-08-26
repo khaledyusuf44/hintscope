@@ -41,7 +41,7 @@ hf_cache = modal.Volume.from_name("hintscope-hf-cache", create_if_missing=True)
 
 @app.function(
     image=image,
-    gpu="A10G",
+    gpu="L40S",
     timeout=60 * 60 * 24,
     scaledown_window=15 * 60,
     volumes={"/root/.cache/huggingface": hf_cache},
@@ -51,6 +51,6 @@ hf_cache = modal.Volume.from_name("hintscope-hf-cache", create_if_missing=True)
 def serve():
     cmd = (
         f"vllm serve {MODEL} --host 0.0.0.0 --port {PORT} "
-        "--max-model-len 16384 --gpu-memory-utilization 0.95 --max-num-seqs 8"
+        "--max-model-len 32768 --gpu-memory-utilization 0.92 --max-num-seqs 32"
     )
     subprocess.Popen(cmd, shell=True)

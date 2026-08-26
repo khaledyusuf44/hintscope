@@ -24,10 +24,18 @@ def load_results(path: Path, options_by_qid: dict[str, dict]) -> dict[str, list[
     """Extraction validates against each question's REAL option set — a letter
     outside it (e.g. 'G' on a 4-option question) is a parse failure, not an
     answer."""
-    by_q = defaultdict(list)
-    n_err = 0
+    # Dedup by (question, sample): retried samples append a second record for
+    # the same key; keep the last successful one (or the last errored one if
+    # none succeeded, so the failure stays visible and loud).
+    by_key = {}
     for line in open(path):
         rec = json.loads(line)
+        key = (rec["question_id"], rec["sample_idx"])
+        if key not in by_key or not rec.get("error"):
+            by_key[key] = rec
+    by_q = defaultdict(list)
+    n_err = 0
+    for rec in by_key.values():
         raw = (rec.get("result") or {}).get("raw_text")
         if rec.get("error"):
             n_err += 1
@@ -35,7 +43,8 @@ def load_results(path: Path, options_by_qid: dict[str, dict]) -> dict[str, list[
         rec["_extracted"] = extract_answer(raw, opts) if raw else None
         by_q[rec["question_id"]].append(rec)
     if n_err:
-        print(f"!! {n_err} records in {path.name} have API errors — counted as parse failures")
+        print(f"!! {n_err} samples in {path.name} have API errors after retries — "
+              f"counted as parse failures")
     return by_q
 
 

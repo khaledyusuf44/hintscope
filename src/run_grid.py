@@ -172,6 +172,8 @@ def load_done_keys(out_path: Path) -> set[str]:
             for line in f:
                 try:
                     rec = json.loads(line)
+                    if rec.get("error"):
+                        continue  # errored sample: not done, re-run will retry it
                     done.add(sample_key(rec["question_id"], rec["condition"], rec["sample_idx"]))
                 except (json.JSONDecodeError, KeyError):
                     continue  # partial line from a crash; will be re-run
