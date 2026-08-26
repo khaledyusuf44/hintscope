@@ -41,7 +41,9 @@ hf_cache = modal.Volume.from_name("hintscope-hf-cache", create_if_missing=True)
 
 @app.function(
     image=image,
-    gpu="L40S",
+    # fallback list: Modal L40S capacity ran dry mid-gate (2026-08-26, stalled
+    # the quiet leg for 2h); A100-40GB fits the same 32k config
+    gpu=["L40S", "A100-40GB"],
     timeout=60 * 60 * 24,
     scaledown_window=15 * 60,
     volumes={"/root/.cache/huggingface": hf_cache},
