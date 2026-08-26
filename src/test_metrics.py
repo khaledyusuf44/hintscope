@@ -72,6 +72,20 @@ def test_flip_rate():
     assert math.isclose(flip_rate(nohint, hint), 0.75 - 0.25)
 
 
+def test_gate_analysis_uses_real_option_set(tmp_path):
+    """Regression (Khalid, 2026-08-26): gate_analysis passed a fake A-J option
+    set to extract_answer, so 'Answer: G' on a 4-option question was accepted
+    instead of flagged. Must be a parse failure."""
+    import json
+    from gate_analysis import load_results
+    rec = {"question_id": "q1", "condition": "no_hint", "sample_idx": 0,
+           "error": None, "result": {"raw_text": "Answer: G"}}
+    p = tmp_path / "no_hint.jsonl"
+    p.write_text(json.dumps(rec) + "\n")
+    by_q = load_results(p, {"q1": OPTS})  # OPTS has only A-D
+    assert by_q["q1"][0]["_extracted"] is None
+
+
 def test_flip_rate_rejects_mixed_targets():
     hint = [rec("C", target="C"), rec("B", target="B")]
     try:

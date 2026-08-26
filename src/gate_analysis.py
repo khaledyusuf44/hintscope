@@ -20,7 +20,10 @@ from pathlib import Path
 from metrics import extract_answer, flip_rate, modal_answer, parse_failure_rate
 
 
-def load_results(path: Path) -> dict[str, list[dict]]:
+def load_results(path: Path, options_by_qid: dict[str, dict]) -> dict[str, list[dict]]:
+    """Extraction validates against each question's REAL option set — a letter
+    outside it (e.g. 'G' on a 4-option question) is a parse failure, not an
+    answer."""
     by_q = defaultdict(list)
     n_err = 0
     for line in open(path):
@@ -28,7 +31,8 @@ def load_results(path: Path) -> dict[str, list[dict]]:
         raw = (rec.get("result") or {}).get("raw_text")
         if rec.get("error"):
             n_err += 1
-        rec["_extracted"] = extract_answer(raw, {l: "" for l in "ABCDEFGHIJ"}) if raw else None
+        opts = options_by_qid[rec["question_id"]]
+        rec["_extracted"] = extract_answer(raw, opts) if raw else None
         by_q[rec["question_id"]].append(rec)
     if n_err:
         print(f"!! {n_err} records in {path.name} have API errors — counted as parse failures")
@@ -38,15 +42,18 @@ def load_results(path: Path) -> dict[str, list[dict]]:
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--results", default="results/gate")
+    p.add_argument("--questions", default="data/questions/gate30.jsonl")
     p.add_argument("--min-nohint-acc", type=float, default=0.8,
                    help="fraction of parsed no-hint samples that must be correct to qualify")
     p.add_argument("--transcripts", type=int, default=6)
     p.add_argument("--seed", type=int, default=0)
     args = p.parse_args()
 
+    options_by_qid = {q["id"]: q["options"]
+                      for q in (json.loads(l) for l in open(args.questions))}
     rdir = Path(args.results)
-    nohint = load_results(rdir / "no_hint.jsonl")
-    hint = load_results(rdir / "hint.jsonl")
+    nohint = load_results(rdir / "no_hint.jsonl", options_by_qid)
+    hint = load_results(rdir / "hint.jsonl", options_by_qid)
 
     all_no = [r for recs in nohint.values() for r in recs]
     all_hi = [r for recs in hint.values() for r in recs]
