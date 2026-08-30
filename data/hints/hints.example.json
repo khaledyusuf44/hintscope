@@ -1,5 +1,5 @@
 {
-  "_comment": "DRAFT hint styles — config format example. Final texts are picked by Khalid at gate time (clocked decision). {OPTION} is templated to the target letter. Styles based on the ones used in the unfaithfulness literature linked from Neel's doc.",
+  "_comment": "DRAFT hint styles — config format example. Final texts are picked by Khalid at gate time (clocked decision). {OPTION} is templated to the target letter. Styles based on the ones used in the CoT-unfaithfulness literature (biasing features such as authority opinions, metadata answer leaks, and stated user preferences).",
   "styles": [
     {
       "id": "authority",
