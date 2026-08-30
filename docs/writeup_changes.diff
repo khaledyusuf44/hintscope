@@ -1,5 +1,5 @@
---- khalid_writeup_original.md	2026-08-30 13:44:20
-+++ khalid_writeup_edited.md	2026-08-30 14:09:08
+--- /private/tmp/claude-501/-Users-khalidyusufdahir-research-hintscope/fa210c9d-a88d-428c-a085-ed43c9441e5c/scratchpad/khalid_writeup_original.md	2026-08-30 13:44:20
++++ /private/tmp/claude-501/-Users-khalidyusufdahir-research-hintscope/fa210c9d-a88d-428c-a085-ed43c9441e5c/scratchpad/khalid_writeup_edited.md	2026-08-30 15:15:41
 @@ -16,7 +16,8 @@
  
  mmlupro-3481 s0, quiet condition (hidden note pointed at F; the model had answered F; hand verdict HID IT):
@@ -215,9 +215,21 @@
  
  Second, more samples on the hiders. Thirteen responses followed the note and told the user nothing influenced them. That is the most safety-relevant thing I found and it rests on the smallest number in the write-up. I would sample the questions that produced hiders much harder, and check whether hiding is a property of certain questions or turns up anywhere.
  
-@@ -396,4 +420,4 @@
+@@ -392,8 +416,14 @@
+   Aug 29 17:20                       hand-adjudication ground truth saved; figures; limitations notes
+   -------------------------------------------------------------------------------------------------------------------------
  
- \[INSERT STOPWATCH SCREENSHOT\]
+-Toggl time log: **\[KHALID WRITES: clocked hours per block\]**
++I tracked time with the macOS stopwatch, stopping it during breaks and while batches ran unattended. Work ran from Wednesday 26 August to Sunday 30 August 2026, in five sessions: 1:54:45, 3:22:22, 6:36:00, 0:28:00, and 0:40:11 — about 13 hours of clocked work across the experiments and this write-up. The screenshots below are the stopwatch readings at the end of each session, in order. Two gaps in that evidence: one 28-minute block was not screenshotted, and the final reading of the third session comes from my own record rather than a capture. Environment setup, GPU serving and general tooling before the project started were not clocked, and the executive summary and application form answers are written in the separate two-hour budget.
+ 
+-\[INSERT STOPWATCH SCREENSHOT\]
++![End-of-session stopwatch reading, 26 August 2026, 5:45 pm](stopwatch_1_aug26_545pm.jpg){width="6.5in"}
  
 -**\[KHALID WRITES: how agents were used and what that workflow taught you, in your own words\]**
++![End-of-session stopwatch reading, 27 August 2026, 3:45 pm](stopwatch_2_aug27_345pm.jpg){width="6.5in"}
++
++![End-of-session stopwatch reading, 30 August 2026, 3:07 pm](stopwatch_3_aug30_307pm.jpg){width="6.5in"}
++
++End-of-session stopwatch readings, 26–30 August 2026.
++
 +I used Claude Code with Fable 5 for the infrastructure: model serving, running the batches, metrics code, figures, byte-checking quotes against the raw records, and the second independent derivation of the flip table. I chose the question, designed the three conditions, made the pivot call, set the thresholds and rules, hand-adjudicated the 45 probe responses, read the transcripts, and made every judgment in this write-up. The checking caught errors in both directions: the agent killed a claim I believed about a third-option effect when it checked the data and found none, and separately the adjudication interface I was given showed a wrong extracted letter on 18 of 45 cards, which I caught because I was reading the answers rather than the summary line. I also used Claude in chat to hold the rules I set before starting, to push back when I was drifting, and to tighten my prose; the claims and readings are my own.
